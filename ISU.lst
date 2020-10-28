@@ -1,0 +1,387 @@
+CC8E Version 1.5,   File: \\Mac\Home\Study\EMU\final semester\embeded systems\labs\team broject\Final Task\ISU.c 26. Dec 2017  18:48   Page 1
+
+ADDR   CODE       LINE  SOURCE
+
+                  00001 
+                  00002 ; CC8E Version 1.5, Copyright (c) B Knudsen Data
+                  00003 ; C compiler for the PIC18 microcontrollers
+                  00004 ; ************  26. Dec 2017  18:48  *************
+                  00005 
+                  00006         processor  PIC18F452
+                  00007         radix  DEC
+                  00008 
+       0FF4       00009 PRODH       EQU   0xFF4
+       0FF3       00010 PRODL       EQU   0xFF3
+       0FEF       00011 INDF0       EQU   0xFEF
+       0FE9       00012 FSR0        EQU   0xFE9
+       0000       00013 Carry       EQU   0
+       0002       00014 Zero_       EQU   2
+       0FD7       00015 TMR0H       EQU   0xFD7
+       0FD6       00016 TMR0L       EQU   0xFD6
+       0FD5       00017 T0CON       EQU   0xFD5
+       0FAF       00018 SPBRG       EQU   0xFAF
+       0FAD       00019 TXREG       EQU   0xFAD
+       0F94       00020 TRISC       EQU   0xF94
+       0F93       00021 TRISB       EQU   0xF93
+       0F81       00022 PORTB       EQU   0xF81
+       0002       00023 TMR0IF      EQU   2
+       0002       00024 BRGH        EQU   2
+       0005       00025 TXEN        EQU   5
+       0004       00026 CREN        EQU   4
+       0007       00027 SPEN        EQU   7
+       0004       00028 TXIF        EQU   4
+       0016       00029 T100ms      EQU   0x16
+       0018       00030 BAcount     EQU   0x18
+       007F       00031 i           EQU   0x7F
+       000C       00032 dmm         EQU   0x0C
+       000E       00033 a           EQU   0x0E
+       0014       00034 i_2         EQU   0x14
+       0015       00035 y           EQU   0x15
+       0000       00036 PPB         EQU   0x00
+       0001       00037 PB          EQU   0x01
+       0002       00038 PBpushed    EQU   0x02
+       0003       00039 i_3         EQU   0x03
+       0004       00040 t1          EQU   0x04
+       0006       00041 t2          EQU   0x06
+       0008       00042 td          EQU   0x08
+       000A       00043 dmm_2       EQU   0x0A
+                  00044 
+000000 EF79 F000  00045         GOTO main
+                  00046 
+                  00047   ; FILE \\Mac\Home\Study\EMU\final semester\embeded systems\labs\team broject\Final Task\ISU.c
+                  00048                         ;#pragma chip PIC18F452
+                  00049                         ;#define NC 50000
+                  00050                         ;char T100ms,blinkT100ms;
+                  00051                         ;
+                  00052                         ;//#include "math24F.h"
+                  00053                         ;
+                  00054                         ;// return from interrupt
+                  00055                         ;// on lowgoing edge of BT4 give 0.1s pulse from RB0
+                  00056                         ;// RB7 is for blinkalive LED
+                  00057                         ;// TIMER0 generates 100 ms interrupts.
+                  00058                         ;// Fosc=4MHz, 0.1s=100000cc., PS=2, Nc= 100000/2
+                  00059                         ;#define BALEDPin PORTB.0
+                  00060                         ;#define BALEDTrs TRISB.0
+                  00061                         ;#define TrigPin PORTB.1
+                  00062                         ;#define TrigTrs TRISB.1
+                  00063                         ;#define ECHOPin PORTB.2
+                  00064                         ;#define ECHOTrs TRISB.2
+                  00065                         ;
+                  00066                         ;
+                  00067                         ;
+                  00068                         ;
+                  00069                         ;
+                  00070                         ;
+                  00071                         ;
+                  00072                         ;void InitPorts(void){
+                  00073 InitPorts
+                  00074                         ;    BALEDTrs = 0;//PORTB.0 = 0;
+000004 9093       00075         BCF   TRISB,0,0
+                  00076                         ;    TrigTrs = 0;//PORTB.1 = 0;
+000006 9293       00077         BCF   TRISB,1,0
+                  00078                         ;    ECHOTrs = 1;//PORTB.2 = 1;
+000008 8493       00079         BSF   TRISB,2,0
+                  00080                         ;
+                  00081                         ;    TRISC.6=0;
+00000A 9C94       00082         BCF   TRISC,6,0
+                  00083                         ;    TRISC.7=1;
+00000C 8E94       00084         BSF   TRISC,7,0
+                  00085                         ;} // RC7..RC0 output
+00000E 0012       00086         RETURN
+                  00087                         ;
+                  00088                         ;void InitUART(){
+                  00089 InitUART
+                  00090                         ;    TRISC.6=0;TRISC.7=1;
+000010 9C94       00091         BCF   TRISC,6,0
+000012 8E94       00092         BSF   TRISC,7,0
+                  00093                         ;    BRGH=1; SPBRG=25; TXEN=1;CREN=1;SPEN=1;
+000014 84AC       00094         BSF   0xFAC,BRGH,0
+000016 0E19       00095         MOVLW 25
+000018 6EAF       00096         MOVWF SPBRG,0
+00001A 8AAC       00097         BSF   0xFAC,TXEN,0
+00001C 88AB       00098         BSF   0xFAB,CREN,0
+00001E 8EAB       00099         BSF   0xFAB,SPEN,0
+                  00100                         ;}
+000020 0012       00101         RETURN
+                  00102                         ;
+                  00103                         ;void Blink(void){
+                  00104 Blink
+                  00105                         ;    
+                  00106                         ;    //BALEDPin can used instade of PORTB.0;
+                  00107                         ;    static char BAcount;
+                  00108                         ;    if(BAcount==0) BALEDPin=0; // LED on
+000022 5218       00109         MOVF  BAcount,1,0
+000024 A4D8       00110         BTFSS 0xFD8,Zero_,0
+000026 D002       00111         BRA   m001
+000028 9081       00112         BCF   PORTB,0,0
+                  00113                         ;    else BALEDPin=1; // LED off
+00002A D001       00114         BRA   m002
+00002C 8081       00115 m001    BSF   PORTB,0,0
+                  00116                         ;    BAcount++; if(BAcount>9) BAcount=0;
+00002E 2A18       00117 m002    INCF  BAcount,1,0
+000030 0E0A       00118         MOVLW 10
+000032 6018       00119         CPFSLT BAcount,0
+000034 6A18       00120         CLRF  BAcount,0
+                  00121                         ;}
+000036 0012       00122         RETURN
+                  00123                         ;void bauddelay(void){
+                  00124 bauddelay
+                  00125                         ;    char i=(104-8)/3 ;
+000038 0E20       00126         MOVLW 32
+00003A 6E7F       00127         MOVWF i,0
+                  00128                         ;    do{}while(--i);
+00003C 2E7F       00129 m003    DECFSZ i,1,0
+00003E D7FE       00130         BRA   m003
+                  00131                         ;        }
+000040 0012       00132         RETURN
+                  00133                         ;
+                  00134                         ;void transmit(uns16 dmm)
+                  00135                         ;{
+                  00136 transmit
+                  00137                         ;
+                  00138                         ;    char a[6];
+                  00139                         ;    
+                  00140                         ;    a[0]='0'; while(dmm>10000){++a[0]; dmm-=10000;}
+000042 0E30       00141         MOVLW 48
+000044 6E0E       00142         MOVWF a,0
+000046 0E11       00143 m004    MOVLW 17
+000048 5C0C       00144         SUBWF dmm,W,0
+00004A 0E27       00145         MOVLW 39
+00004C 580D       00146         SUBWFB dmm+1,W,0
+00004E A0D8       00147         BTFSS 0xFD8,Carry,0
+000050 D006       00148         BRA   m005
+000052 2A0E       00149         INCF  a,1,0
+000054 0E10       00150         MOVLW 16
+000056 5E0C       00151         SUBWF dmm,1,0
+000058 0E27       00152         MOVLW 39
+00005A 5A0D       00153         SUBWFB dmm+1,1,0
+00005C D7F4       00154         BRA   m004
+                  00155                         ;    a[1]='0'; while(dmm>1000){++a[1]; dmm-=1000;}
+00005E 0E30       00156 m005    MOVLW 48
+000060 6E0F       00157         MOVWF a+1,0
+000062 0EE9       00158 m006    MOVLW 233
+000064 5C0C       00159         SUBWF dmm,W,0
+000066 0E03       00160         MOVLW 3
+000068 580D       00161         SUBWFB dmm+1,W,0
+00006A A0D8       00162         BTFSS 0xFD8,Carry,0
+00006C D006       00163         BRA   m007
+00006E 2A0F       00164         INCF  a+1,1,0
+000070 0EE8       00165         MOVLW 232
+000072 5E0C       00166         SUBWF dmm,1,0
+000074 0E03       00167         MOVLW 3
+000076 5A0D       00168         SUBWFB dmm+1,1,0
+000078 D7F4       00169         BRA   m006
+                  00170                         ;    a[2]='0'; while(dmm>100){++a[2]; dmm-=100;}
+00007A 0E30       00171 m007    MOVLW 48
+00007C 6E10       00172         MOVWF a+2,0
+00007E 500D       00173 m008    MOVF  dmm+1,W,0
+000080 A4D8       00174         BTFSS 0xFD8,Zero_,0
+000082 D003       00175         BRA   m009
+000084 0E64       00176         MOVLW 100
+000086 640C       00177         CPFSGT dmm,0
+000088 D006       00178         BRA   m010
+00008A 2A10       00179 m009    INCF  a+2,1,0
+00008C 0E64       00180         MOVLW 100
+00008E 5E0C       00181         SUBWF dmm,1,0
+000090 0E00       00182         MOVLW 0
+000092 5A0D       00183         SUBWFB dmm+1,1,0
+000094 D7F4       00184         BRA   m008
+                  00185                         ;    a[3]='0'; while(dmm>10){++a[3]; dmm-=10;}
+000096 0E30       00186 m010    MOVLW 48
+000098 6E11       00187         MOVWF a+3,0
+00009A 500D       00188 m011    MOVF  dmm+1,W,0
+00009C A4D8       00189         BTFSS 0xFD8,Zero_,0
+00009E D003       00190         BRA   m012
+0000A0 0E0A       00191         MOVLW 10
+0000A2 640C       00192         CPFSGT dmm,0
+0000A4 D006       00193         BRA   m013
+0000A6 2A11       00194 m012    INCF  a+3,1,0
+0000A8 0E0A       00195         MOVLW 10
+0000AA 5E0C       00196         SUBWF dmm,1,0
+0000AC 0E00       00197         MOVLW 0
+0000AE 5A0D       00198         SUBWFB dmm+1,1,0
+0000B0 D7F4       00199         BRA   m011
+                  00200                         ;    a[4]='0'+dmm;
+CC8E Version 1.5,   File: \\Mac\Home\Study\EMU\final semester\embeded systems\labs\team broject\Final Task\ISU.c 26. Dec 2017  18:48   Page 2
+
+ADDR   CODE       LINE  SOURCE
+
+0000B2 0E30       00201 m013    MOVLW 48
+0000B4 240C       00202         ADDWF dmm,W,0
+0000B6 6E12       00203         MOVWF a+4,0
+                  00204                         ;    a[5]=0x0D;
+0000B8 0E0D       00205         MOVLW 13
+0000BA 6E13       00206         MOVWF a+5,0
+                  00207                         ;    
+                  00208                         ;
+                  00209                         ;    char i,y;
+                  00210                         ;    for(i=0; i<7; ++i){
+0000BC 6A14       00211         CLRF  i_2,0
+0000BE 0E07       00212 m014    MOVLW 7
+0000C0 6014       00213         CPFSLT i_2,0
+0000C2 D00E       00214         BRA   m017
+                  00215                         ;        do{}while(!TXIF); TXREG=a[i];
+0000C4 A89E       00216 m015    BTFSS 0xF9E,TXIF,0
+0000C6 D7FE       00217         BRA   m015
+0000C8 6AEA       00218         CLRF  FSR0+1,0
+0000CA 0E0E       00219         MOVLW 14
+0000CC 2414       00220         ADDWF i_2,W,0
+0000CE 6EE9       00221         MOVWF FSR0,0
+0000D0 CFEF FFAD  00222         MOVFF INDF0,TXREG
+                  00223                         ;        y=8;while(--y){}
+0000D4 0E08       00224         MOVLW 8
+0000D6 6E15       00225         MOVWF y,0
+0000D8 2E15       00226 m016    DECFSZ y,1,0
+0000DA D7FE       00227         BRA   m016
+                  00228                         ;    }
+0000DC 2A14       00229         INCF  i_2,1,0
+0000DE D7EF       00230         BRA   m014
+                  00231                         ;    
+                  00232                         ;    
+                  00233                         ;}
+0000E0 0012       00234 m017    RETURN
+                  00235                         ;
+                  00236                         ;void set100ms() {
+                  00237 set100ms
+                  00238                         ;    // set Timer0 for 0.1sec
+                  00239                         ;    TMR0H=-NC/256; TMR0L=-NC%256; TMR0IF=0;
+0000E2 0E3D       00240         MOVLW 61
+0000E4 6ED7       00241         MOVWF TMR0H,0
+0000E6 0EB0       00242         MOVLW 176
+0000E8 6ED6       00243         MOVWF TMR0L,0
+0000EA 94F2       00244         BCF   0xFF2,TMR0IF,0
+                  00245                         ;    T0CON=0b1000.0000;
+0000EC 0E80       00246         MOVLW 128
+0000EE 6ED5       00247         MOVWF T0CON,0
+                  00248                         ;}
+0000F0 0012       00249         RETURN
+                  00250                         ;void main(void)
+                  00251                         ;{
+                  00252 main
+                  00253                         ;    char PPB, PB, PBpushed;
+                  00254                         ;    T100ms=0;
+0000F2 6A16       00255         CLRF  T100ms,0
+                  00256                         ;    InitPorts();
+0000F4 DF87       00257         RCALL InitPorts
+                  00258                         ;    InitUART();
+0000F6 DF8C       00259         RCALL InitUART
+                  00260                         ;    
+                  00261                         ;    PB=PORTB;
+0000F8 CF81 F001  00262         MOVFF PORTB,PB
+                  00263                         ;    do{
+                  00264                         ;        set100ms();
+0000FC DFF2       00265 m018    RCALL set100ms
+                  00266                         ;        PPB=PB; PB=PORTB; PBpushed=~PB&PPB;
+0000FE C001 F000  00267         MOVFF PB,PPB
+000102 CF81 F001  00268         MOVFF PORTB,PB
+000106 1C01       00269         COMF  PB,W,0
+000108 1400       00270         ANDWF PPB,W,0
+00010A 6E02       00271         MOVWF PBpushed,0
+                  00272                         ;        if (T100ms >= 50) {
+00010C 0E31       00273         MOVLW 49
+00010E 6416       00274         CPFSGT T100ms,0
+000110 D033       00275         BRA   m025
+                  00276                         ;            T100ms = 0;
+000112 6A16       00277         CLRF  T100ms,0
+                  00278                         ;            TrigPin = 1; // trig
+000114 8281       00279         BSF   PORTB,1,0
+                  00280                         ;            
+                  00281                         ;            char i = 20/3;
+000116 0E06       00282         MOVLW 6
+000118 6E03       00283         MOVWF i_3,0
+                  00284                         ;            do{}while(--i);
+00011A 2E03       00285 m019    DECFSZ i_3,1,0
+00011C D7FE       00286         BRA   m019
+                  00287                         ;            
+                  00288                         ;            TrigPin = 0;
+00011E 9281       00289         BCF   PORTB,1,0
+                  00290                         ;            do{}while(!ECHOPin);
+000120 A481       00291 m020    BTFSS PORTB,2,0
+000122 D7FE       00292         BRA   m020
+                  00293                         ;            uns16 t1,t2,td; t1.low8 = TMR0L;t1.high8 = TMR0H;
+000124 CFD6 F004  00294         MOVFF TMR0L,t1
+000128 CFD7 F005  00295         MOVFF TMR0H,t1+1
+                  00296                         ;            do{}while(ECHOPin && !TMR0IF );
+00012C A481       00297 m021    BTFSS PORTB,2,0
+00012E D002       00298         BRA   m022
+000130 A4F2       00299         BTFSS 0xFF2,TMR0IF,0
+000132 D7FC       00300         BRA   m021
+                  00301                         ;            
+                  00302                         ;            t2.low8 = TMR0L;t2.high8 = TMR0H;
+000134 CFD6 F006  00303 m022    MOVFF TMR0L,t2
+000138 CFD7 F007  00304         MOVFF TMR0H,t2+1
+                  00305                         ;            td = t2 - t1;
+00013C 5004       00306         MOVF  t1,W,0
+00013E 5C06       00307         SUBWF t2,W,0
+000140 6E08       00308         MOVWF td,0
+000142 5005       00309         MOVF  t1+1,W,0
+000144 5807       00310         SUBWFB t2+1,W,0
+000146 6E09       00311         MOVWF td+1,0
+                  00312                         ;            
+                  00313                         ;            uns16 dmm;
+                  00314                         ;           // dmm=tp*0.34;
+                  00315                         ;           
+                  00316                         ;            //multiplyconstfrac(tp,84,dmm);
+                  00317                         ;            if(!TMR0IF){
+000148 B4F2       00318         BTFSC 0xFF2,TMR0IF,0
+00014A D00D       00319         BRA   m023
+                  00320                         ;                WREG=td.low8; multiply(87);
+00014C 5008       00321         MOVF  td,W,0
+00014E 0D57       00322         MULLW 87
+                  00323                         ;                dmm.low8=PRODH; WREG=td.high8;
+000150 CFF4 F00A  00324         MOVFF PRODH,dmm_2
+000154 5009       00325         MOVF  td+1,W,0
+                  00326                         ;                multiply(87); dmm.low8 += PRODL;
+000156 0D57       00327         MULLW 87
+000158 50F3       00328         MOVF  PRODL,W,0
+00015A 260A       00329         ADDWF dmm_2,1,0
+                  00330                         ;                if(Carry) ++PRODH; dmm.high8=PRODH;
+00015C B0D8       00331         BTFSC 0xFD8,Carry,0
+00015E 2AF4       00332         INCF  PRODH,1,0
+000160 CFF4 F00B  00333         MOVFF PRODH,dmm_2+1
+                  00334                         ;            }else{
+000164 D004       00335         BRA   m024
+                  00336                         ;                dmm = 1000;
+000166 0EE8       00337 m023    MOVLW 232
+000168 6E0A       00338         MOVWF dmm_2,0
+00016A 0E03       00339         MOVLW 3
+00016C 6E0B       00340         MOVWF dmm_2+1,0
+                  00341                         ;            }
+                  00342                         ;            
+                  00343                         ;                transmit(dmm);
+00016E C00A F00C  00344 m024    MOVFF dmm_2,dmm
+000172 C00B F00D  00345         MOVFF dmm_2+1,dmm+1
+000176 DF65       00346         RCALL transmit
+                  00347                         ;            
+                  00348                         ;            
+                  00349                         ;            
+                  00350                         ;            
+                  00351                         ;     
+                  00352                         ;        }
+                  00353                         ;        
+                  00354                         ;        do{}while(!TMR0IF);
+000178 A4F2       00355 m025    BTFSS 0xFF2,TMR0IF,0
+00017A D7FE       00356         BRA   m025
+                  00357                         ;        ++T100ms;
+00017C 2A16       00358         INCF  T100ms,1,0
+                  00359                         ;        Blink();
+00017E DF51       00360         RCALL Blink
+                  00361                         ;    }while(1); /* now mainloop takes around 20 cc only */
+000180 D7BD       00362         BRA   m018
+                  00363 
+                  00364         END
+                  00365 
+                  00366 
+                  00367 ; *** KEY INFO ***
+                  00368 
+                  00369 ; 0x000004    6 word(s)  0 % : InitPorts
+                  00370 ; 0x000010    9 word(s)  0 % : InitUART
+                  00371 ; 0x000022   11 word(s)  0 % : Blink
+                  00372 ; 0x000038    5 word(s)  0 % : bauddelay
+                  00373 ; 0x000042   80 word(s)  0 % : transmit
+                  00374 ; 0x0000E2    8 word(s)  0 % : set100ms
+                  00375 ; 0x0000F2   72 word(s)  0 % : main
+                  00376 
+                  00377 ; RAM usage: 25 bytes (22 local), 1511 bytes free
+                  00378 ; Maximum call level: 1
+                  00379 ; Total of 193 code words (1 %)

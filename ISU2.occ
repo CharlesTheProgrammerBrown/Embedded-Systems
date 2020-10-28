@@ -1,0 +1,23 @@
+CC8E Version 1.1A, Copyright (c) B Knudsen Data, Norway 2001-2004
+ --> DEMO edition, 8-24 bit int, 24-32 bit float, 1k code words
+ISU2.c:
+ 12. Jan 2018  11:08
+Warning ISU2.c 1: Duplicate chip definition is ignored
+ (Multiple different chip definitions (option -p<chip> and #pragma chip ..)
+ is supplied. One should be removed)
+ Chip = 18F252
+Warning ISU2.c 213: Local variables and parameters in uncalled functions are not allocated (1)
+ (The application contains non-library functions that are not called. Local
+ variables in these functions (option -wU) are not allocated to save space)
+ RAM : ======== ======== ======.. .******* ******** ******** ******** ********
+  40h: ******** ******** ******** ******** ******** ******** ******** ********
+  80h: ******** ******** ******** ******** ******** ******** ******** ********
+  C0h: ******** ******** ******** ******** ******** ******** ******** ********
+ Bank  0:231  1:256  2:256  3:256  4:256  5:256  bytes free
+RAM usage: 25 bytes (22 local), 1511 bytes free
+ Optimizing - removed 45 code words (-23 %)
+ File 'ISU2.lst'
+ File 'ISU2.occ'
+ File 'ISU2.hex'
+Total of 188 code words (1 %)
+ RESTRICTION: Generated code is for evaluation use only.
